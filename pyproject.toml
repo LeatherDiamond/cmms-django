@@ -2,7 +2,7 @@
 name = "cmms"
 version = "0.1.0"
 description = "CMMS system for tasks management"
-authors = ["Aliaksandr Dauhuchyts <a.dauhuchyts@dacpol.eu>"]
+authors = ["Aliaksandr Dauhuchyts <alexander.dovguchits@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]

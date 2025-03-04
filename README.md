@@ -108,13 +108,13 @@ The project is organized into several key directories and files:
 
 ## Diagram
 
-![Diagram](http://192.168.0.226/dacpol-it/dacpol_cmms/-/raw/main/Diagram.svg)
+![Diagram]()
 
 # How to start locally
 
 1. Clone current repository to your local machine:
 ```
-http://192.168.0.226/dacpol-it/dacpol_cmms.git
+https://github.com/LeatherDiamond/cmms-django.git
 ```
 2. Navigate to the root directory of the project;
 3. Configure `.env` file by assigning values to the variables defined in `.env.sample`;
@@ -146,7 +146,7 @@ After completing all the steps, the project will be launched and available at `h
 1. Install [Docker](https://docs.docker.com/engine/install/) on your local machine, if it wasn't done yet, and launch it;
 2. Clone current repository to your local machine:
  ```
-http://192.168.0.226/dacpol-it/dacpol_cmms.git
+https://github.com/LeatherDiamond/cmms-django.git
  ```
 3. Configure `.env` file by assigning values to the variables defined in `.env.sample`;
 4. USe the command to build and start the container:
@@ -170,7 +170,7 @@ After completing all the steps, the project will be launched and available at `h
 > [Docker](https://docs.docker.com/engine/install/) launched locally. For example, if your Runner is configured for local Docker setup, you will need to launch Docker on your 
 > machine for the pipeline to work correctly because the GitLab pipeline uses [Docker-in-Docker](https://docs.gitlab.com/ee/ci/docker/using_docker_build.html).
 
-The project includes configured pipeline file for [GitLab](http://192.168.0.226/dacpol-it/dacpol_cmms/-/blob/main/.gitlab-ci.yml), ensuring that each new code push triggers the build and launch of the project container, runs tests within the container, and subsequently stops it, providing continuous quality code delivery. No matter where your project is stored: `GitHub` or `GitLab`, thanks to configured files the pipeline will be launched automatically.
+The project includes configured pipeline files for [GitLab]() and [GitHub](), ensuring that each new code push triggers the build and launch of the project container, runs tests within the container, and subsequently stops it, providing continuous quality code delivery. No matter where your project is stored: `GitHub` or `GitLab`, thanks to configured files the pipeline will be launched automatically.
 
 # Running tests locally
 

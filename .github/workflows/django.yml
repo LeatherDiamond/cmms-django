@@ -37,18 +37,18 @@ jobs:
 
       - name: build
         env:
-            SECRET_KEY: ${{ secrets.SECRET_KEY }}
-            DEBUG: ${{ secrets.DEBUG }}
-            ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
-            EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
-            EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
-            EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
-            EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
-            DEFAULT_FROM_EMAIL: ${{ secrets.DEFAULT_FROM_EMAIL }}
-            EMAIL_USE_TLS: ${{ secrets.EMAIL_USE_TLS }}
-            EMAIL_USE_SSL: ${{ secrets.EMAIL_USE_SSL }}
-            DEBUG_EMAIL: ${{ secrets.DEBUG_EMAIL }}
-            DEBUG_PASSWORDS: ${{ secrets.DEBUG_PASSWORDS }}
+            SECRET_KEY: $${{ secrets.SECRET_KEY }}
+            DEBUG: $${{ secrets.DEBUG }}
+            ALLOWED_HOSTS: $${{ secrets.ALLOWED_HOSTS }}
+            EMAIL_HOST: $${{ secrets.EMAIL_HOST }}
+            EMAIL_HOST_USER: $${{ secrets.EMAIL_HOST_USER }}
+            EMAIL_HOST_PASSWORD: $${{ secrets.EMAIL_HOST_PASSWORD }}
+            EMAIL_PORT: $${{ secrets.EMAIL_PORT }}
+            DEFAULT_FROM_EMAIL: $${{ secrets.DEFAULT_FROM_EMAIL }}
+            EMAIL_USE_TLS: $${{ secrets.EMAIL_USE_TLS }}
+            EMAIL_USE_SSL: $${{ secrets.EMAIL_USE_SSL }}
+            DEBUG_EMAIL: $${{ secrets.DEBUG_EMAIL }}
+            DEBUG_PASSWORDS: $${{ secrets.DEBUG_PASSWORDS }}
             DEBUG_DEFAULT_PASSWORD: $${{ secrets.DEBUG_DEFAULT_PASSWORD }}
             ADMINS: '[["Admin Adminych", "a.adminych@gmail.com"], ["Admin2 Adminych2", "a.adminych2@gmail.com"]]'
 

@@ -1,0 +1,64 @@
+name: build_and_test
+
+on:
+  pull_request:
+    branches:
+      - '*'
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.3.0
+
+      - name: Setup Python
+        uses: actions/setup-python@v4.5.0
+
+        with:
+          python-version: "3.11.3"
+
+      - name: Setup Poetry
+        uses: Gr1N/setup-poetry@v8
+        with:
+          poetry-version: '1.5.1'
+
+      - name: Install requirements
+        run: poetry install
+
+      - name: Run black
+        run: poetry run black . --check
+
+      - name: Run Flake8
+        run: poetry run flake8 .
+
+      - name: build
+        env:
+            PIP_VERSION: ${WEBAPP_PIP_VERSION:-'23.3.1'}
+            POETRY_VERSION: ${WEBAPP_POETRY_VERSION:-'1.7.1'}
+            PYTHON_VERSION: ${WEBAPP_PYTHON_VERSION:-'3.11.3'}
+            SECRET_KEY: ${SECRET_KEY}
+            DEBUG: ${DEBUG}
+            ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+            EMAIL_HOST: ${EMAIL_HOST}
+            EMAIL_HOST_USER: ${EMAIL_HOST_USER}
+            EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
+            EMAIL_PORT: ${EMAIL_PORT}
+            DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL}
+            EMAIL_USE_TLS: ${EMAIL_USE_TLS}
+            EMAIL_USE_SSL: ${EMAIL_USE_SSL}
+            DEBUG_EMAIL: ${DEBUG_EMAIL}
+            DEBUG_PASSWORDS: ${DEBUG_PASSWORDS}
+            DEBUG_DEFAULT_PASSWORD: ${DEBUG_DEFAULT_PASSWORD}
+            ADMINS: '[["Admin Adminych", "a.adminych@gmail.com"], ["Admin2 Adminych2", "a.adminych2@gmail.com"]]'
+
+        run: docker-compose up -d
+            
+      - name: Run tests
+        run: docker exec cmms.webapp bash run-test.sh
+
+      - name: stop services
+        run: docker-compose stop

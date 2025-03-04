@@ -55,10 +55,10 @@ jobs:
             DEBUG_DEFAULT_PASSWORD: ${DEBUG_DEFAULT_PASSWORD}
             ADMINS: '[["Admin Adminych", "a.adminych@gmail.com"], ["Admin2 Adminych2", "a.adminych2@gmail.com"]]'
 
-        run: docker-compose up -d
+        run: docker compose up -d
             
       - name: Run tests
         run: docker exec cmms.webapp bash run-test.sh
 
       - name: stop services
-        run: docker-compose stop
+        run: docker compose stop

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    <div class="page-title text-center py-3">
+        <span class="text-light fs-4">
+            Witaj w CMMS <b><i style="color: var(--cmms-red);">DACPOL</i></b>
+            {% if request.user.first_name %}, {{ user.first_name }}!{% endif %}
+        </span>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="dashboard-container">
+        <div class="dashboard-grid general-stats">
+            <div class="chart-card">
+                <h5>Całkowita liczba zadań</h5>
+                <p class="fs-3 fw-bold">{{ total_tasks }}</p>
+            </div>
+            <div class="chart-card">
+                <h5>Zadania otwarte</h5>
+                <p class="fs-3 fw-bold" style="color: var(--cmms-yellow);">{{ open_tasks }}</p>
+            </div>
+            <div class="chart-card">
+                <h5>Zadania zamknięte</h5>
+                <p class="fs-3 fw-bold" style="color: var(--cmms-green);">{{ closed_tasks }}</p>
+            </div>
+            <div class="chart-card">
+                <h5>Zadania zaległe</h5>
+                <p class="fs-3 fw-bold" style="color: var(--cmms-red);">{{ overdue_tasks }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="chart-card recent-tasks">
+            <h5 class="text-center">Najnowsze zadania</h5>
+            <ul class="list-group mt-2">
+                {% for task in recent_tasks %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ task.title }}</span>
+                        <small class="text-muted">{{ task.created_at|date:"d.m.Y H:i" }}</small>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-center">Brak zadań</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        {% if user.is_manager %}
+            <div class="dashboard-grid manager">
+        {% else %}
+            <div class="dashboard-grid non-manager">
+        {% endif %}
+            <div class="chart-card category">
+                <h5 class="chart-title">Statystyki według kategorii</h5>
+                <canvas id="categoryChart"></canvas>
+            </div>
+        
+            <div class="chart-card priority">
+                <h5 class="chart-title">Statystyki priorytetów</h5>
+                <canvas id="priorityChart"></canvas>
+            </div>
+        
+            {% if user.is_manager and avg_closure_time %}
+            <div class="chart-card avg">
+                <h5 class="chart-title">Średni czas zamykania zadań</h5>
+                <p style="font-size: 1.2rem; font-weight: bold;">{{ avg_closure_time }}</p>
+            </div>
+            {% endif %}        
+            </div>
+        </div>
+
+<div id="dashboard-data"
+    data-category-stats='[
+    {% for item in category_stats %}
+        {"category": "{{ item.category }}", "count": {{ item.count }}}
+        {% if not forloop.last %},{% endif %}
+    {% endfor %}
+    ]'
+    data-priority-stats='[
+    {% for item in priority_stats %}
+        {"priority": "{{ item.priority }}", "count": {{ item.count }}}
+        {% if not forloop.last %},{% endif %}
+    {% endfor %}
+    ]'>
+</div>
+{% endblock %}

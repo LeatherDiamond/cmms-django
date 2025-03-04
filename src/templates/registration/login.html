@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block content %}
+
+    <div class="container d-flex flex-column align-items-center auth-padding">
+        <div class="box login-box">
+            <div class="box-header">
+                <span class="fs-5">Logowanie</span>
+            </div>
+            <div class="box-body flex-column pt-4 pb-5 ps-5 pe-5">
+                <form method="post" class="auth-form mt-0">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    <div class="form-group w-100">
+                        <label for="{{ form.username.id_for_label }}" class="form-label">Login:</label>
+                        {% render_field form.username class="form-control" %}
+                        {{ form.username.errors }}
+
+                    </div>
+                    <div class="form-group mt-3 mb-3 w-100">
+                        <label for="{{ form.password.id_for_label }}" class="form-label">Hasło:</label>
+                        {% render_field form.password class="form-control" %}
+                        {{ form.password.errors }}
+                    </div>
+                    <input class="btn btn-primary btn-dark w-100" type="submit" value="Zaloguj się">
+                </form>
+                <a class="link-secondary text-center" href="{% url 'password_reset' %}" >Kliknij tutaj, jeśli nie pamiętasz hasła</a>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

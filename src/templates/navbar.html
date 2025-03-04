@@ -1,0 +1,50 @@
+{% load static %}
+
+<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-white">
+    <div id="navbarContainer" class="container-fluid d-flex align-items-stretch shadow-sm">
+        <a class="navbar-brand bg-white" href="{% url 'index' %}">
+            <img class="navbar-logo" src="{% static 'images/dacpol_logo_cmms.PNG' %}">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse fs-6" id="navbarSupportedContent">
+            <ul class="navbar-nav me-lg-auto">
+                {% if user.is_authenticated %}
+                    {% if perms.buildings.view_building or user.is_superuser or user.is_staff %}
+                        <li class="nav-item">
+                            <a class="nav-link" id="building-nav" href="{% url 'building_list' %}">BUDYNKI</a>
+                        </li>
+                    {% endif %}
+                    {% if perms.tasks.view_task or user.is_superuser or user.is_staff %}
+                    <li class="nav-item">
+                        <a class="nav-link" id="task-nav" href="{% url 'task_list' %}">ZADANIA</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% if user.is_superuser or user.is_staff %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'admin:index' %}">ADMIN</a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+            <ul class="navbar-nav">
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+                            {% csrf_token %}
+                        </form>
+                        <a class="nav-link logout-link" href="#" onclick="document.getElementById('logout-form').submit();">WYLOGUJ SIĘ</a>                        
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">ZALOGUJ SIĘ</a>
+                    </li>
+                {% endif %}
+            </ul>
+
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+<script src="{% static 'js/attachments-validation.js' %}"></script>
+
+<div class="container">
+    <h2 style="text-align: center">Zaktualizuj zadanie</h2>
+    <form class="generic-form mt-3 mb-5" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="form-row">
+            <label>Nazwa:</label>
+              <div class="animated-field">
+                {{ form.title }}
+                {{ form.title.errors }}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label>Termin wykonania:</label>
+            <div class="animated-field">
+                {{ form.deadline }}
+                {{ form.deadline.errors }}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label>Przypisany osoby:</label>
+            <div class="animated-field">
+                {{ form.assigned_person }}
+                {{ form.assigned_person.errors }}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label>Budynki:</label>
+            <div class="animated-field">
+                {{ form.building }}
+                {{ form.building.errors }}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label>Kategoria:</label>
+            <div class="animated-field">
+            {{ form.category }}
+            {{ form.category.errors }}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label>Priorytet:</label>
+            <div class="animated-field">
+            {{ form.priority }}
+            {{ form.priority.errors }}
+            </div>
+        </div>
+
+        <div class="form-row full-width">
+            <label>Opis:</label>
+            <div class="animated-field">
+            {{ form.description }}
+            {{ form.description.errors }}
+            </div>
+        </div>
+
+        <div class="form-row full-width">
+            <label for="attachments">Załączniki:</label>
+            <input type="file" id="attachments" name="attachments" multiple>
+            <div id="file-list">
+                {% for attachment in attachments %}
+                    <div class="file-item" data-existing-file="{{ attachment.id }}">
+                        <span>
+                            {{ attachment.file.name }}
+                        </span>
+                        <button type="button" class="delete-existing"> X </button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <input type="hidden" id="delete-attachments" name="delete_attachments">
+
+        <!-- Error Messages -->
+        <div class="form-row full-width">
+            {% if error %}
+            <div class="attachment-error-container">
+                <p class="attachment-error">{{ error }}</p>
+            </div>
+            {% else %}
+                <div class="attachment-error-container"></div>
+            {% endif %}
+        </div>
+        
+
+        <div class="form-row full-width">
+            <div class="button-container">
+                <a href="{% url 'task_list' %}" class="btn btn-danger">Anuluj</a>
+                <button type="submit" class="btn btn-dark">Zapisz</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#id_assigned_person, #id_building').select2({
+            placeholder: function() {
+                $(this).data('placeholder');
+            },
+            allowClear: true,
+            width: '100%',
+            language: {
+            noResults: function() {
+                return "Brak wyników";
+            }
+        }
+        });
+    });
+</script>
+
+
+{% endblock %}

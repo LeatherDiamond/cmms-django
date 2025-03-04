@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block scripts %}
+    <script src="{% static 'js/building-delete-mobile.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container p-2">
+    <div class="box">
+        <div class="box-header">
+                <span class="fs-4">Budynki</span>
+            </div>
+            <div class="d-flex justify-content-center p-3 mt-3 mb-3">
+                <a class="btn btn-dark" href="{% url 'building_create' %}">Nowy budynek <i class="bi bi-plus-lg"></i></a>
+            </div>
+
+
+            {% if is_paginated %}
+            <!-- Desktop version -->
+            <nav aria-label="Page navigation" class="pagination-desktop">
+                <ul class="pagination justify-content-center">
+                    <!-- Button "Previous page" -->
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;</span>
+                        </li>
+                    {% endif %}
+        
+                    <!-- First page -->
+                    {% if page_obj.number > 3 %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">1</a>
+                        </li>
+                        {% if page_obj.number > 4 %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+        
+                    <!-- Main pages -->
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+                            {% if num == page_obj.number %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+        
+                    <!-- Last page -->
+                    {% if page_obj.number < page_obj.paginator.num_pages|add:"-2" %}
+                        {% if page_obj.number < page_obj.paginator.num_pages|add:"-3" %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
+                        </li>
+                    {% endif %}
+        
+                    <!-- Button "Next page" -->
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        
+            <!-- Mobile version -->
+            <nav aria-label="Page navigation" class="pagination-mobile">
+                <ul class="pagination justify-content-center">
+                    <!-- Button "Previous page" -->
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link prev-btn" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;</span>
+                        </li>
+                    {% endif %}
+        
+                    <!-- Current page / Total pages -->
+                    <li class="page-item page-info">
+                        <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+        
+                    <!-- Button "Next page" -->
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link next-btn" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}        
+        
+        
+
+<div class="table-responsive table-wrapper buildings-table p-2">
+    <table class="table table-hover table-cmms table-bordered table-sm">
+            <thead>
+                <tr>
+                    <th scope="col"><b>Nazwa</b></th>
+                    <th scope="col"><b>Adres</b></th>
+                    <th scope="col"><b>Akcje</b></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for building in buildings %}
+            <tr class="animated-row">
+                <td>
+                    <b><em>{{ building.name }}</b></em>
+                </td>
+                <td>
+                    <em>{{ building.address }}</em>
+                </td>
+                <td>
+                    <div class="d-flex flex-column align-items-top gap-2">
+                        <a href="{% url 'building_delete' pk=building.pk %}" type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{building.pk}}">Usuń</a>
+                        <a href="{% url 'building_update' pk=building.pk %}" type="button" class="btn btn-sm btn-warning">Edytuj</a>
+                    </div>
+                </td>
+            
+            <div class="modal fade" id="deleteModal{{building.pk}}" tabindex="-1" aria-labelledby="BuildingDeleteModal" aria-hidden="true" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="BuildingDeleteModalLabel">
+                        Usuń budynek
+                        </h1>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container text-center">
+                        <h3>Czy na pewno chcesz usunąć:<br>
+                        <span style="font-weight: bold; color: var(--cmms-red)"> {{ building.name }}</span> ?
+                        </h3>
+                        </div>
+                        <br>
+                        <div class="modal-footer">
+                            <form method="post" action="{% url 'building_delete' building.pk %}">
+                                {% csrf_token %}
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nie</button>
+                                    <input class="btn btn-dark mx-2" type="submit" value="Tak">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+        {% empty %}
+        <tr>
+            <td colspan="3">
+                <div class="row align-items-center">
+                    <div class="col"><hr></div>
+                    <div class="col-md-auto text-muted text-center">BRAK</div>
+                    <div class="col"><hr></div>
+            </td>
+        </tr>
+        {% endfor %}   
+        </table>
+      </tbody>
+    </div>
+
+    <div class="building-card-wrapper">
+        {% for building in buildings %}
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title"><b>{{ building.name }}</b></h5>
+                <p class="card-text"><b>Adres:</b> {{ building.address }}</p>
+                    <div class="d-flex gap-2 mt-3 buttons-container">
+                        <button class="btn btn-sm btn-danger show-building-confirmation" data-building-id="{{ building.pk }}">Usuń</button>
+                        <a href="{% url 'building_update' pk=building.pk %}" type="button" class="btn btn-sm btn-warning">Edytuj</a>
+                    </div>
+
+                    <!-- Delete confirmation block -->
+                    <div class="delete-confirmation d-none d-flex gap-2 align-items-center mt-3" id="confirmBuildingDelete{{ building.pk }}">
+                        <p class="text-danger mb-2">Czy na pewno chcesz usunąć?</p>
+                        
+                        <form method="POST" action="{% url 'building_delete' pk=building.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">Tak</button>
+                        </form>
+
+                        <button class="btn btn-sm btn-secondary cancel-delete" data-building-id="{{ building.pk }}">Nie</button>
+                    </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center text-muted">BRAK</div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

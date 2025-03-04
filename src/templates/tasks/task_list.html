@@ -1,0 +1,740 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block scripts %}
+    <script src="{% static 'js/task-delete-decline-mobile.js' %}"></script>
+    <script src="{% static 'js/task-filter-form.js' %}"></script>
+    <script src="{% static 'js/task-comment-ajax.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container p-2">
+    <div class="box">
+        <div class="box-header">
+                <span class="fs-4">Zadania</span>
+            </div>
+
+            {% if request.user.is_manager %}
+            <div class="d-flex justify-content-center p-3 mt-3">
+                <a class="btn btn-dark" href="{% url 'task_create' %}">Nowe zadanie <i class="bi bi-plus-lg"></i></a>
+            </div>
+            {% endif %}
+
+<div class="table-responsive table-wrapper tasks-table p-2">
+    
+    <div class="filter-header mb-3" id="toggleFilter">
+        <span class="filter-line"></span>
+        <span class="filter-text">
+            Filtruj zadania
+            <span class="filter-toggle-icon">▼</span>
+        </span>
+        <span class="filter-line"></span>
+    </div>
+    
+
+    <div id="filterFormWrapper" class="filter-form-wrapper">
+    
+    <form method="get" class="filter-form p-3 rounded shadow-sm">
+        <div class="row g-3">
+            {% if user.is_manager %}
+            <div class="col-lg-3 col-md-6">
+                <label for="{{ filter_form.assigned_person.id_for_label }}" class="form-label">Przypisana osoba</label>
+                {{ filter_form.assigned_person }}
+            </div>
+            {% endif %}
+    
+            <div class="col-lg-3 col-md-6">
+                <label for="{{ filter_form.status_field.id_for_label }}" class="form-label">Status</label>
+                {{ filter_form.status_field }}
+            </div>
+    
+            <div class="col-lg-3 col-md-6">
+                <label for="{{ filter_form.category.id_for_label }}" class="form-label">Kategoria</label>
+                {{ filter_form.category }}
+            </div>
+    
+            <div class="col-lg-3 col-md-6">
+                <label for="{{ filter_form.priority.id_for_label }}" class="form-label">Priorytet</label>
+                {{ filter_form.priority }}
+            </div>
+            
+            {% if user.is_manager %}
+                <div class="col-lg-3 col-md-6">
+                    <label for="{{ filter_form.start_date.id_for_label }}" class="form-label">Data utworzenia (od)</label>
+                    {{ filter_form.start_date }}
+                </div>
+        
+                <div class="col-lg-3 col-md-6">
+                    <label for="{{ filter_form.end_date.id_for_label }}" class="form-label">Data utworzenia (do)</label>
+                    {{ filter_form.end_date }}
+                </div>
+        
+                <div class="col-lg-3 col-md-6">
+                    <label for="{{ filter_form.closed_start.id_for_label }}" class="form-label">Data zamknięcia (od)</label>
+                    {{ filter_form.closed_start }}
+                </div>
+        
+                <div class="col-lg-3 col-md-6">
+                    <label for="{{ filter_form.closed_end.id_for_label }}" class="form-label">Data zamknięcia (do)</label>
+                    {{ filter_form.closed_end }}
+                </div>
+        
+                <div class="col-lg-3 col-md-6">
+                    <label for="{{ filter_form.deadline_start.id_for_label }}" class="form-label">Deadline (od)</label>
+                    {{ filter_form.deadline_start }}
+                </div>
+        
+                <div class="col-lg-3 col-md-6">
+                    <label for="{{ filter_form.deadline_end.id_for_label }}" class="form-label">Deadline (do)</label>
+                    {{ filter_form.deadline_end }}
+                </div>
+            {% endif %}
+
+            <div class="col-12 text-center mt-4 mb-3">
+                <div class="d-inline-flex gap-3">
+                    <button type="submit" class="btn btn-dark filter-btn">Filtruj</button>
+                    <a href="{% url 'task_list' %}" class="btn btn-secondary filter-btn">Wyczyść</a>
+                </div>
+            </div>                 
+            
+        </div>
+    </form>
+    </div>
+
+    {% if is_paginated %}
+    <!-- Desktop version -->
+    <nav aria-label="Page navigation" class="pagination-desktop">
+        <ul class="pagination justify-content-center">
+            <!-- Button "Previous page" -->
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query_params %}&{{ query_params }}{% endif %}">&laquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo;</span>
+                </li>
+            {% endif %}
+    
+            <!-- First page -->
+            {% if page_obj.number > 3 %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if query_params %}&{{ query_params }}{% endif %}">1</a>
+                </li>
+                {% if page_obj.number > 4 %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                {% endif %}
+            {% endif %}
+    
+            <!-- Main pages -->
+            {% for num in page_obj.paginator.page_range %}
+                {% if num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+                    {% if num == page_obj.number %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if query_params %}&{{ query_params }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+    
+            <!-- Last page -->
+            {% if page_obj.number < page_obj.paginator.num_pages|add:"-2" %}
+                {% if page_obj.number < page_obj.paginator.num_pages|add:"-3" %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                {% endif %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query_params %}&{{ query_params }}{% endif %}">{{ page_obj.paginator.num_pages }}</a>
+                </li>
+            {% endif %}
+    
+            <!-- Button "Next page" -->
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query_params %}&{{ query_params }}{% endif %}">&raquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&raquo;</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}    
+    
+    <table class="table table-hover table-cmms table-bordered table-sm">
+            <thead>
+                <tr>
+                    <th scope="col"><b>Numer</b></th>
+                    <th scope="col"><b>Nazwa</b></th>
+                    <th scope="col"><b>Budynki</b></th>
+                    <th scope="col"><b>Przypisany osoby</b></th>
+                    <th scope="col"><b>Status</b></th>
+                    <th scope="col"><b>Termin wykonania</b></th>
+                    <th scope="col"><b>Zamknięte</b></th>
+                    <th scope="col"><b>Kategoria</b></th>
+                    <th scope="col"><b>Priorytet</b></th>
+                    <th scope="col"><b>Akcje</b></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for task in tasks %}
+            <tr class="animated-row">
+                <td>
+                    <button class="btn btn-sm btn-dark details-button" data-bs-toggle="modal" data-bs-target="#taskDetailsModal{{ task.pk }}">
+                        <b><em>{{ task.id }}</b></em>
+                    </button>
+                </td>
+                <td>
+                    <b><em>{{ task.title }}</b></em>
+                </td>
+                <td>
+                    <em>{{ task.building.all|join:", " }}</em>
+                </td>
+                <td>
+                    <em>{{ task.assigned_person.all|join:", " }}</em>
+                </td>
+                <td>
+                    {% if task.status_field == 'confirmed' %}
+                    <b><em style="color: var(--cmms-yellow);">Wykonano</em></b>
+                    {% elif task.status_field == 'declined' %}
+                    <b><em style="color: var(--cmms-red);">Wykonanie nie potwierdzone</em></b>
+                    {% elif task.status_field == 'accepted' %}
+                    <b><em style="color: var(--cmms-green);">Wykonanie potwierdzone</em></b>
+                    {% elif task.status_field == None %}
+                    <b><em>-</em></b>
+                    {% endif %}
+                </td>
+                <td>
+                    <b><em>{{ task.deadline }}</em></b>
+                </td>
+                <td>
+                    {% if task.closed_at %}
+                    <em style="color: var(--cmms-green)">{{ task.closed_at }}</em>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if task.category == 'planned' %}
+                    <b><em style="color: var(--cmms-green)">Zadania planowe</em></b>
+                    {% elif task.category == 'failure' %}
+                    <b><em style="color: var(--cmms-red);">Awarie</em></b>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if task.priority == 'low' %}
+                    <b><em style="color: var(--cmms-green);">Niski</em></b>
+                    {% elif task.priority == 'medium' %}
+                    <b><em style="color: var(--cmms-yellow);">Średni</em></b>
+                    {% elif task.priority == 'high' %}
+                    <b><em style="color: var(--cmms-red);">Wysoki</em></b>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if task.assigned_person.all|length > 0 and request.user in task.assigned_person.all %}
+                        {% if task.status_field == "declined" or not task.status_field %}
+                            <a class="btn btn-sm btn-dark cmms-green" href="{% url 'task_employee_status_update' pk=task.pk status='confirmed' %}"><i class="bi-hand-thumbs-up-fill"></i></a>
+                        {% elif task.status_field == "confirmed" %}
+                            <a class="btn btn-sm btn-dark cmms-red" href="{% url 'task_employee_status_update' pk=task.pk status='none' %}" title="Cofnij"><i class="bi bi-arrow-counterclockwise"></i></a>
+                        {% else %}
+                            BRAK
+                        {% endif %}
+                    {% elif request.user.is_manager %}
+                        {% if task.status_field == "declined" or not task.status_field %}
+                            <div class="d-flex flex-column align-items-top gap-2">
+                                <a href="{% url 'task_delete' pk=task.pk %}" type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#taskDeleteModal{{ task.pk }}">Usuń</a>
+                                <a href="{% url 'task_update' pk=task.pk %}" type="button" class="btn btn-sm btn-warning">Edytuj</a>
+                            </div>
+                        {% elif task.status_field == "confirmed" %}
+                            <div>
+                                <a class="btn btn-sm btn-dark cmms-green mb-2" href="{% url 'task_manager_status_update' pk=task.pk status='accepted' %}"><i class="bi-hand-thumbs-up-fill"></i></a>
+                                <a class="btn btn-sm btn-dark cmms-red" href="{% url 'task_manager_status_update' pk=task.pk status='declined' %}" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#managerTaskDeclinedModal{{ task.pk }}"><i class="bi-hand-thumbs-down-fill"></i></a>
+                            </div>
+                        {% else %}
+                            BRAK
+                        {% endif %}
+                    {% endif %}                
+                </td>
+            
+                <div class="modal fade" id="taskDetailsModal{{task.pk}}" tabindex="-1" aria-labelledby="taskDetailModal" data-bs-backdrop="static" data-bs-keyboard="false">
+                    <div class="modal-dialog modal-dialog-scrollable">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h1 class="modal-title fs-5" id="taskDetailsModal{{task.pk}}">
+                            <span style="color: grey"> # </span>
+                             {{ task.id }} Zadanie</h1>
+                             {% if task.status_field == 'accepted' %}
+                             <span class="badge rounded-pill" style="background-color: var(--cmms-green);">WYKONANIE POTWIERDZONE</span>
+                             {% elif task.status_field == 'confirmed' %}
+                             <span class="badge rounded-pill" style="background-color: var(--cmms-yellow);">WYKONANO</span>
+                             {% elif task.status_field == 'declined' %}
+                             <span class="badge rounded-pill" style="background-color: var(--cmms-red);">WYKONANIE NIE POTWIERDZONE</span>
+                             {% endif %}
+                        </div>
+                        <div class="modal-body">
+                        
+                            <h3>Szczegóły</h3>
+                            <br>
+                            <p>Tytuł zadania: 
+                                <b>{{ task.title }}</b>
+                            </p>
+                            <p>Budynki : <b>{{ task.building.all|join:", " }}</b></p>
+                            <p>Przypisany osoby: <b>{{ task.assigned_person.all|join:", " }}</b></p>
+                            <p>Termin wykonania: <b>{{ task.deadline|date:'d-m-Y H:i' }}</b></p>
+
+                            <p>Kategoria: 
+                                {% if task.category == 'planned' %}
+                                <span class="badge rounded-pill" style="background-color: var(--cmms-green)">ZADANIA PLANOWE</span>
+                                {% elif task.category == 'failure' %}
+                                <span class="badge rounded-pill" style="background-color: var(--cmms-red);">AWARIE</span>
+                                {% endif %}
+                            </p>
+                            <p>Priorytet: 
+                                {% if task.priority == 'low' %}
+                                <span class="badge rounded-pill" style="background-color: var(--cmms-green);">NISKI</span>
+                                {% elif task.priority == 'medium' %}
+                                <span class="badge rounded-pill" style="background-color: var(--cmms-yellow);">ŚREDNI</span>
+                                {% elif task.priority == 'high' %}
+                                <span class="badge rounded-pill" style="background-color: var(--cmms-red);">WYSOKI</span>
+                                {% endif %}
+                            </p>
+                            <p>Zamknięte:
+                                {% if task.closed_at %}
+                                <b><em style="color: var(--cmms-green)">{{ task.closed_at }}</em></b>
+                                {% else %}
+                                <b> - </b>
+                                {% endif %}
+                            </p>
+
+                            <p>Opis:</p>
+                            <div class="description-modal-container mb-3">
+                                <b><em>{{ task.description }}</em></b>
+                            </div>
+
+
+                            
+                            {% if task.attachments.all %}
+                                <p>Załączniki:</p>
+                                <div class="container">
+                                    <div id="file-list">
+                                        {% for attachment in task.attachments.all %}
+                                            <div class="file-item">
+                                                <a href="{% url 'serve_attachment' file_path=attachment.file.name %}" target="_blank">
+                                                    {{ attachment.file.name }}
+                                                </a>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <br>
+                            <h3>Komentarze</h3>
+                            <br>
+                            <p>Nowy komentarz:</p>
+                            <form id="comment-form-{{ task.pk }}" method="post" data-url="{% url 'task_leave_comment' pk=task.pk %}">
+                                {% csrf_token %}
+                                <textarea id="comment-text-{{ task.pk }}" name="comment_text" class="form-control"></textarea>
+                                <p class="d-flex justify-content-end mt-3">
+                                    <button type="submit" class="btn btn-dark mx-2">Wyślij</button>
+                                </p>
+                            </form>
+                            <div id="comment-list-{{ task.pk }}">
+                                <ul style="list-style-type: none;">
+                                  {% for comment in task.taskcomment_set.all %}
+                                    <li>
+                                      <i class="bi-person-fill"></i><b> {{ comment.user.full_name }}</b>
+                                      <span class="small help-text">{{ comment.creation_date|date:'d.m.Y - H:i' }}</span>
+                                      <p class="small comment__text">{{ comment.comment_text }}</p>
+                                    </li>
+                                  {% empty %}
+                                    <li>
+                                      <div class="row align-items-center">
+                                        <div class="col"><hr></div>
+                                        <div class="col-md-auto text-muted text-center">brak</div>
+                                        <div class="col"><hr></div>
+                                      </div>
+                                    </li>
+                                  {% endfor %}
+                                </ul>
+                            </div>
+                            <br>
+    
+                            <div class="container">
+                                <h6 class="text-muted">Dodatkowe informacje</h6>
+                                <div class="">
+                                    <p class="text-muted small mb-0">
+                                        <label>Data utworzenia:</label>
+                                        <b>{{ task.created_at|date:'d.m.Y - H:i' }}</b>
+                                    </p>
+                                    <p class="text-muted small mb-0">
+                                        <label>Utworzono przez:</label>
+                                        <b>{{ task.created_by.full_name }}</b>
+                                    </p>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Zamknij</button>
+                            </div>
+                        </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+            
+            <div class="modal fade" id="taskDeleteModal{{task.pk}}" tabindex="-1" aria-labelledby="taskDeleteModal" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="taskDeleteModal{{task.pk}}">
+                        Usuń zadanie
+                        </h1>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container text-center">
+                        <h3>Czy na pewno chcesz usunąć:<br>
+                        <span style="font-weight: bold; color: var(--cmms-red); word-wrap: break-word;"> {{ task.title }}</span> ?
+                        </h3>
+                        </div>
+                        <br>
+                        <div class="modal-footer">
+                            <form method="post" action="{% url 'task_delete' task.pk %}">
+                                {% csrf_token %}
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nie</button>
+                                    <input class="btn btn-dark mx-2" type="submit" value="Tak">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="modal fade" id="managerTaskDeclinedModal{{task.pk}}" tabindex="-1" aria-labelledby="managerTaskDeclinedModal" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h3 class="modal-title fs-5"  id="managerTaskDeclinedModalLabel{{task.pk}}">
+                      <i class="bi-hand-thumbs-down-fill" style="font-weight: bold; color: var(--cmms-red); word-wrap: break-word;"></i> Potwierdzasz, że zadanie <span style="font-weight: bold; color: var(--cmms-red)">{{ task.title }}</span> nie zostało wykonane?</h3>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" action="{% url 'task_manager_status_update' pk=task.pk status='declined' %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {{ comment_form.comment_text }}
+                            <p class="d-flex justify-content-end mt-3">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nie</button>
+                                <input class="btn btn-dark mx-2" type="submit" value="Tak">
+                            </p>
+                        </form>
+                    </div>
+                    </div>
+                </div>
+               </div>
+              
+        {% empty %}
+        <tr>
+            <td colspan="10">
+                <div class="row align-items-center">
+                    <div class="col"><hr></div>
+                    <div class="col-md-auto text-muted text-center">BRAK</div>
+                    <div class="col"><hr></div>
+            </td>
+        </tr>
+        {% endfor %}   
+        </table>
+      </tbody>
+    </div>
+
+    <div class="task-card-wrapper">
+        
+        <div class="filter-header" id="toggleFilter">
+            <span class="filter-line"></span>
+            <span class="filter-text">
+                Filtruj zadania
+                <span class="filter-toggle-icon">▼</span>
+            </span>
+            <span class="filter-line"></span>
+        </div>
+        
+    
+        <div id="filterFormWrapper" class="filter-form-wrapper mb-3">
+        <form method="get" class="filter-form p-3 rounded shadow-sm">
+            <div class="row g-3">
+                {% if user.is_manager %}
+                <div class="col-lg-3 col-md-6">
+                    <label for="{{ filter_form.assigned_person.id_for_label }}" class="form-label">Przypisana osoba</label>
+                    {{ filter_form.assigned_person }}
+                </div>
+                {% endif %}
+        
+                <div class="col-lg-3 col-md-6">
+                    <label for="{{ filter_form.status_field.id_for_label }}" class="form-label">Status</label>
+                    {{ filter_form.status_field }}
+                </div>
+        
+                <div class="col-lg-3 col-md-6">
+                    <label for="{{ filter_form.category.id_for_label }}" class="form-label">Kategoria</label>
+                    {{ filter_form.category }}
+                </div>
+        
+                <div class="col-lg-3 col-md-6">
+                    <label for="{{ filter_form.priority.id_for_label }}" class="form-label">Priorytet</label>
+                    {{ filter_form.priority }}
+                </div>
+                
+                {% if user.is_manager %}
+                    <div class="col-lg-3 col-md-6">
+                        <label for="{{ filter_form.start_date.id_for_label }}" class="form-label">Data utworzenia (od)</label>
+                        {{ filter_form.start_date }}
+                    </div>
+            
+                    <div class="col-lg-3 col-md-6">
+                        <label for="{{ filter_form.end_date.id_for_label }}" class="form-label">Data utworzenia (do)</label>
+                        {{ filter_form.end_date }}
+                    </div>
+            
+                    <div class="col-lg-3 col-md-6">
+                        <label for="{{ filter_form.closed_start.id_for_label }}" class="form-label">Data zamknięcia (od)</label>
+                        {{ filter_form.closed_start }}
+                    </div>
+            
+                    <div class="col-lg-3 col-md-6">
+                        <label for="{{ filter_form.closed_end.id_for_label }}" class="form-label">Data zamknięcia (do)</label>
+                        {{ filter_form.closed_end }}
+                    </div>
+            
+                    <div class="col-lg-3 col-md-6">
+                        <label for="{{ filter_form.deadline_start.id_for_label }}" class="form-label">Deadline (od)</label>
+                        {{ filter_form.deadline_start }}
+                    </div>
+            
+                    <div class="col-lg-3 col-md-6">
+                        <label for="{{ filter_form.deadline_end.id_for_label }}" class="form-label">Deadline (do)</label>
+                        {{ filter_form.deadline_end }}
+                    </div>
+                {% endif %}
+
+        
+                <div class="col-12 text-center mt-4 mb-3">
+                    <div class="d-inline-flex gap-3">
+                        <button type="submit" class="btn btn-dark filter-btn">Filtruj</button>
+                        <a href="{% url 'task_list' %}" class="btn btn-secondary filter-btn">Wyczyść</a>
+                    </div>
+                </div>    
+            </div>
+        </form>
+        </div>
+
+    {% if is_paginated %}
+        <nav aria-label="Page navigation" class="pagination-mobile">
+            <ul class="pagination justify-content-center">
+                <!-- Button "Previous page" -->
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link prev-btn" href="?page={{ page_obj.previous_page_number }}{% if query_params %}&{{ query_params }}{% endif %}">&laquo;</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo;</span>
+                    </li>
+                {% endif %}
+        
+                <!-- Current page / Total pages -->
+                <li class="page-item page-info">
+                    <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+                </li>
+        
+                <!-- Button "Next page" -->
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link next-btn" href="?page={{ page_obj.next_page_number }}{% if query_params %}&{{ query_params }}{% endif %}">&raquo;</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&raquo;</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+        
+        
+        {% for task in tasks %}
+        <div class="card  mb-3 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title"><b>{{ task.title }}</b></h5>
+                <p class="card-text mt-3">
+                    <b>Status:</b> 
+                    {% if task.status_field == 'accepted' %}
+                    <span class="badge rounded-pill" style="background-color: var(--cmms-green);">WYKONANIE POTWIERDZONE</span>
+                    {% elif task.status_field == 'confirmed' %}
+                    <span class="badge rounded-pill" style="background-color: var(--cmms-yellow);">WYKONANO</span>
+                    {% elif task.status_field == 'declined' %}
+                    <span class="badge rounded-pill" style="background-color: var(--cmms-red);">WYKONANIE NIE POTWIERDZONE</span>
+                    {% else %}
+                        <span class="text-muted">-</span>
+                    {% endif %}
+                </p>
+                <p class="card-text"><b>Termin wykonania:</b> {{ task.deadline }}</p>
+                
+                <button class="btn btn-sm btn-dark" type="button" data-bs-toggle="collapse" data-bs-target="#taskDetails{{ task.pk }}">
+                    Szczegóły
+                </button>
+    
+                <div class="collapse mt-2" id="taskDetails{{ task.pk }}">
+                    <p><b>Budynki:</b> {{ task.building.all|join:", " }}</p>
+                    <p><b>Przypisany osoby:</b> {{ task.assigned_person.all|join:", " }}</p>
+                    <p><b>Kategoria:</b> 
+                        {% if task.category == 'planned' %}
+                        <span class="badge rounded-pill" style="background-color: var(--cmms-green)">ZADANIA PLANOWE</span>
+                        {% elif task.category == 'failure' %}
+                        <span class="badge rounded-pill" style="background-color: var(--cmms-red);">AWARIE</span>
+                        {% endif %}
+                    </p>
+                    <p><b>Priorytet:</b> 
+                        {% if task.priority == 'low' %}
+                        <span class="badge rounded-pill" style="background-color: var(--cmms-green);">NISKI</span>
+                        {% elif task.priority == 'medium' %}
+                        <span class="badge rounded-pill" style="background-color: var(--cmms-yellow);">ŚREDNI</span>
+                        {% elif task.priority == 'high' %}
+                        <span class="badge rounded-pill" style="background-color: var(--cmms-red);">WYSOKI</span>
+                        {% endif %}
+                    </p>
+                    <p><b>Zamknięte:</b>
+                        {% if task.closed_at %}
+                        <b><em style="color: var(--cmms-green)">{{ task.closed_at }}</em></b>
+                        {% else %}
+                        <b> - </b>
+                        {% endif %}
+                    </p>
+
+                    <p><b>Opis:</b></p>
+                    <div class="description-modal-container mb-3">
+                        <b><em>{{ task.description }}</em></b>
+                    </div>
+
+                    {% if task.attachments.all %}
+                    <p>Załączniki:</p>
+                    <div class="container">
+                        <div id="file-list">
+                            {% for attachment in task.attachments.all %}
+                                <div class="file-item">
+                                    <a href="{% url 'serve_attachment' file_path=attachment.file.name %}" target="_blank">
+                                        {{ attachment.file.name }}
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <br>
+                    <div class="row align-items-center">
+                        <h3>Komentarze</h3>
+                        <p>Nowy komentarz:</p>
+                        <form id="comment-form-{{ task.pk }}" method="post" data-url="{% url 'task_leave_comment' pk=task.pk %}">
+                            {% csrf_token %}
+                            <textarea id="comment-text-{{ task.pk }}" name="comment_text" class="form-control"></textarea>
+                            <p class="d-flex justify-content-end mt-3">
+                                <button type="submit" class="btn btn-dark mx-2">Wyślij</button>
+                            </p>
+                        </form>
+                        <div id="comment-list-{{ task.pk }}">
+                            <ul style="list-style-type: none;">
+                              {% for comment in task.taskcomment_set.all %}
+                                <li>
+                                  <i class="bi-person-fill"></i><b> {{ comment.user.full_name }}</b>
+                                  <span class="small help-text">{{ comment.creation_date|date:'d.m.Y - H:i' }}</span>
+                                  <p class="small comment__text">{{ comment.comment_text }}</p>
+                                </li>
+                              {% empty %}
+                                <li>
+                                  <div class="row align-items-center">
+                                    <div class="col"><hr></div>
+                                    <div class="col-md-auto text-muted text-center">brak</div>
+                                    <div class="col"><hr></div>
+                                  </div>
+                                </li>
+                              {% endfor %}
+                            </ul>
+                        </div>
+                    
+                   
+
+                    <div class="container">
+                        <h6 class="text-muted">Dodatkowe informacje</h6>
+                        <div class="">
+                            <p class="text-muted small mb-0" style="font-size: 14px;">
+                                <label>Data utworzenia:</label>
+                                <b>{{ task.created_at|date:'d.m.Y - H:i' }}</b>
+                            </p>
+                            <p class="text-muted small mb-0" style="font-size: 14px;">
+                                <label>Utworzono przez:</label>
+                                <b>{{ task.created_by.full_name }}</b>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                    <div class="d-flex gap-2 mt-3 buttons-container">
+                        {% if task.assigned_person.all|length > 0 and request.user in task.assigned_person.all %}
+                            {% if task.status_field == "declined" or not task.status_field %}
+                                <a class="btn btn-sm btn-dark cmms-green" href="{% url 'task_employee_status_update' pk=task.pk status='confirmed' %}"><i class="bi-hand-thumbs-up-fill"></i></a>
+                                {% elif task.status_field == "confirmed" %}
+                                <a class="btn btn-sm btn-dark cmms-red" href="{% url 'task_employee_status_update' pk=task.pk status='none' %}"><i class="bi bi-arrow-counterclockwise"></i></a>
+                            {% endif %}
+                        {% elif request.user.is_manager %}
+                            {% if task.status_field == "declined" or not task.status_field %}
+                                <button class="btn btn-sm btn-danger show-confirmation" data-task-id="{{ task.pk }}">Usuń</button>
+                                <a href="{% url 'task_update' pk=task.pk %}" class="btn btn-sm btn-warning">Edytuj</a>
+                            {% elif task.status_field == "confirmed" %}
+                                <a class="btn btn-sm btn-dark cmms-green" href="{% url 'task_manager_status_update' pk=task.pk status='accepted' %}"><i class="bi-hand-thumbs-up-fill"></i></a>
+                                <a class="btn btn-sm btn-dark cmms-red show-decline-confirmation" data-task-id="{{ task.pk }}">
+                                    <i class="bi-hand-thumbs-down-fill"></i>
+                                </a>
+                            {% endif %}
+                        {% endif %} 
+                    </div>
+
+                    <!-- Decline task with form block -->
+                    <div class="decline-confirmation d-none d-flex flex-column gap-2 align-items-center mt-3" id="confirmDecline{{ task.pk }}">
+                        <p class="text-danger mb-2">Podaj powód odrzucenia:</p>
+                        
+                        <form method="POST" action="{% url 'task_manager_status_update' pk=task.pk status='declined' %}" class="d-inline w-100">
+                            {% csrf_token %}
+                            <textarea name="comment_text" class="form-control mb-3" required></textarea>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-sm btn-danger">Potwierdź</button>
+                                <button type="button" class="btn btn-sm btn-secondary cancel-decline" data-task-id="{{ task.pk }}">Anuluj</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Delete confirmation block -->
+                    <div class="delete-confirmation d-none d-flex gap-2 align-items-center mt-3" id="confirmDelete{{ task.pk }}">
+                        <p class="text-danger mb-2">Czy na pewno chcesz usunąć?</p>
+                        
+                        <form method="POST" action="{% url 'task_delete' pk=task.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">Tak</button>
+                        </form>
+
+                        <button class="btn btn-sm btn-secondary cancel-delete" data-task-id="{{ task.pk }}">Nie</button>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center text-muted">BRAK ZADAŃ</div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

@@ -1,0 +1,50 @@
+stages:
+  - build_and_test
+
+services:
+  - name: docker:dind
+    command: ["--mtu=1400"]
+
+variables:
+  PIP_VERSION: ${WEBAPP_PIP_VERSION:-'23.3.1'}
+  POETRY_VERSION: ${WEBAPP_POETRY_VERSION:-'1.7.1'}
+  PYTHON_VERSION: ${WEBAPP_PYTHON_VERSION:-'3.11.3'}
+  SECRET_KEY: ${SECRET_KEY}
+  DEBUG: ${DEBUG}
+  ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+  EMAIL_HOST: ${EMAIL_HOST}
+  EMAIL_HOST_USER: ${EMAIL_HOST_USER}
+  EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
+  EMAIL_PORT: ${EMAIL_PORT}
+  DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL}
+  EMAIL_USE_TLS: ${EMAIL_USE_TLS}
+  EMAIL_USE_SSL: ${EMAIL_USE_SSL}
+  DEBUG_EMAIL: ${DEBUG_EMAIL}
+  DEBUG_PASSWORDS: ${DEBUG_PASSWORDS}
+  DEBUG_DEFAULT_PASSWORD: ${DEBUG_DEFAULT_PASSWORD}
+  ADMINS: '[["Admin Adminych", "a.adminych@gmail.com"], ["Admin2 Adminych2", "a.adminych2@gmail.com"]]'
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_DRIVER: overlay2
+
+before_script:
+  - apt-get update -qy
+  - apt-get install -y docker.io
+  - apt-get install -y curl
+  - curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  - chmod +x /usr/local/bin/docker-compose
+  - docker-compose --version
+  - find . -type f -not -path "./.git/*" -exec chmod -x {} +
+
+build_and_test:
+  stage: build_and_test
+  script:
+    - docker-compose build
+    - docker-compose up -d
+    - docker exec cmms.webapp black . --check
+    - docker exec cmms.webapp flake8
+    - docker exec cmms.webapp bash run-test.sh
+  after_script:
+    - docker-compose down
+  only:
+    - branches

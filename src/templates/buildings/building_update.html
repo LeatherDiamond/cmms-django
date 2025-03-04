@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container">
+    <h2 style="text-align: center">Zaktualizuj budynek</h2>
+    <form class="generic-form mt-3" method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="form-row">
+            <label>Nazwa budynku:</label>
+              <div class="animated-field">
+                {{ form.name }}
+                {{ form.name.errors }}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label>Adres budynku:</label>
+            <div class="animated-field">
+            {{ form.address }}
+            {{ form.address.errors }}
+            </div>
+        </div>
+
+        <div class="form-row full-width">
+            <div class="button-container">
+                <a href="{% url 'building_list' %}" class="btn btn-danger">Anuluj</a>
+                <button type="submit" class="btn btn-dark">Zapisz</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+    {% endblock %}

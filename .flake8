@@ -1,0 +1,25 @@
+[flake8]
+ignore = S101, S105, S106, B101, W503, Q000, E402, JS101, JS102, VNE002
+
+max-line-length = 150
+max_cognitive_complexity = 17
+
+per-file-ignores =
+    src/users/auth_backends.py: N806
+    src/users/managers.py: S311
+    src/users/models.py: SIM102, SIM910
+    src/tasks/views.py: W293, ECE001, SIM115
+    src/tests/conftest.py: I202, I100
+    src/tests/tasks_tests/test_models.py: F841
+    src/proj/test_settings.py: F401, F403
+    src/homepage/views.py: ECE001
+
+exclude =
+    .artifacts
+    .git
+    .idea
+    .local
+    .venv
+    .vscode
+    */migrations/*
+    src/manage.py

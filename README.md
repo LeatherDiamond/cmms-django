@@ -170,7 +170,7 @@ After completing all the steps, the project will be launched and available at `h
 > [Docker](https://docs.docker.com/engine/install/) launched locally. For example, if your Runner is configured for local Docker setup, you will need to launch Docker on your 
 > machine for the pipeline to work correctly because the GitLab pipeline uses [Docker-in-Docker](https://docs.gitlab.com/ee/ci/docker/using_docker_build.html).
 
-The project includes configured pipeline files for [GitLab](.gitlab-ci.yml) and [GitHub](), ensuring that each new code push triggers the build and launch of the project container, runs tests within the container, and subsequently stops it, providing continuous quality code delivery. No matter where your project is stored: `GitHub` or `GitLab`, thanks to configured files the pipeline will be launched automatically.
+The project includes configured pipeline files for [GitLab](.gitlab-ci.yml) and [GitHub](.github/workflows/django.yml), ensuring that each new code push triggers the build and launch of the project container, runs tests within the container, and subsequently stops it, providing continuous quality code delivery. No matter where your project is stored: `GitHub` or `GitLab`, thanks to configured files the pipeline will be launched automatically.
 
 # Running tests locally
 

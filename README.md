@@ -51,7 +51,7 @@ The CMMS (Computerized Maintenance Management System) project is a comprehensive
 * ***Support for multiple languages.***
 * ***Configurable locale settings.***
 
-## Technicak stack
+## Technical stack
 
 - **Backend:** Python *3.11.3,* Django *5.1.4*
 - **Frontend:** HTML, CSS, JavaScript, jQuery, Bootstrap
@@ -108,7 +108,7 @@ The project is organized into several key directories and files:
 
 ## Diagram
 
-![Diagram]()
+![Diagram](Diagram.svg)
 
 # How to start locally
 
@@ -170,7 +170,7 @@ After completing all the steps, the project will be launched and available at `h
 > [Docker](https://docs.docker.com/engine/install/) launched locally. For example, if your Runner is configured for local Docker setup, you will need to launch Docker on your 
 > machine for the pipeline to work correctly because the GitLab pipeline uses [Docker-in-Docker](https://docs.gitlab.com/ee/ci/docker/using_docker_build.html).
 
-The project includes configured pipeline files for [GitLab]() and [GitHub](), ensuring that each new code push triggers the build and launch of the project container, runs tests within the container, and subsequently stops it, providing continuous quality code delivery. No matter where your project is stored: `GitHub` or `GitLab`, thanks to configured files the pipeline will be launched automatically.
+The project includes configured pipeline files for [GitLab](.gitlab-ci.yml) and [GitHub](), ensuring that each new code push triggers the build and launch of the project container, runs tests within the container, and subsequently stops it, providing continuous quality code delivery. No matter where your project is stored: `GitHub` or `GitLab`, thanks to configured files the pipeline will be launched automatically.
 
 # Running tests locally
 
@@ -201,3 +201,7 @@ Pipeline configuration files are already set to launch tests automatically. It m
 # Why should you try it
 
 The CMMS project is a powerful tool designed to enhance the efficiency of maintenance operations within an organization. With its comprehensive task management features, robust user management, and insightful reporting capabilities, it provides a centralized platform for managing all maintenance-related activities. The use of modern technologies and best practices ensures the system is secure, scalable, and easy to use.
+
+# License
+
+**This project is licensed under the Apache-2.0 license - see the [LICENSE](LICENSE) file for details.**
